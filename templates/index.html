@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Weather App - KJ.Dev</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <div id="loading" class="loading-overlay" style="display:none;" aria-live="polite" aria-busy="true">
+            <div class="spinner" role="status" aria-label="Loading"></div>
+        </div>
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">Weather App</h1>
+                <a href="#" class="kj-dev-link">KJ.Dev</a>
+            </div>
+        </header>
+
+        <main class="main-container" role="main">
+            <div class="weather-animations left-anim" aria-hidden="true">
+                <div class="sun"></div>
+                <div class="cloud"></div>
+                <div class="rain">
+                    <div class="rain-drop"></div>
+                    <div class="rain-drop"></div>
+                    <div class="rain-drop"></div>
+                </div>
+                <div class="lightning"></div>
+                <div class="snow">
+                    <div class="snowflake"></div>
+                    <div class="snowflake"></div>
+                    <div class="snowflake"></div>
+                </div>
+                <div class="fog"></div>
+            </div>
+            <div class="center-content">
+                <form method="POST" class="search-form" aria-label="Search for city weather" onsubmit="document.getElementById('loading').style.display='flex';">
+                    <input type="text" name="city" placeholder="Enter city name" required aria-label="City name" list="cities">
+                    <datalist id="cities">
+                        <option value="London">
+                        <option value="New York">
+                        <option value="Paris">
+                        <option value="Tokyo">
+                        <option value="Sydney">
+                        <option value="Berlin">
+                        <option value="Moscow">
+                        <option value="Beijing">
+                        <option value="Mumbai">
+                        <option value="Cairo">
+                    </datalist>
+                    <button type="submit" aria-label="Get Weather">Get Weather</button>
+                </form>
+                <form method="POST" style="margin-bottom: 0;" aria-label="Toggle temperature unit">
+                    <input type="hidden" name="city" value="{{ weather_data[0].city if weather_data else '' }}">
+                    <input type="hidden" name="unit" value="{{ 'imperial' if unit == 'metric' else 'metric' }}">
+                    <button type="submit" class="unit-toggle" aria-label="Switch to {{ 'Fahrenheit' if unit == 'metric' else 'Celsius' }}">
+                        °{{ 'F' if unit == 'metric' else 'C' }}
+                    </button>
+                </form>
+
+                <!-- Error Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <p class="error" role="alert">{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <!-- Weather Data -->
+                {% if weather_data %}
+                {% set weather = weather_data[0] %}
+                <section class="current-weather-card" aria-label="Current weather">
+                    <div class="weather-main-info">
+                        <div class="weather-icon-large">
+                            <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@4x.png" alt="Weather Icon" aria-hidden="true">
+                        </div>
+                        <div class="weather-info-block">
+                            <h2 class="city-name">{{ weather.city }}</h2>
+                            <div class="temperature-large">{{ weather.temperature|round }}°{{ 'C' if unit == 'metric' else 'F' }}</div>
+                            <div class="weather-desc">{{ weather.description|capitalize }}</div>
+                            <div class="weather-details-row">
+                                <div class="detail-item"><i class="fas fa-tint" aria-hidden="true"></i> {{ weather.humidity }}%</div>
+                                <div class="detail-item"><i class="fas fa-wind" aria-hidden="true"></i> {{ weather.wind_speed }} {{ 'km/h' if unit == 'metric' else 'mph' }}</div>
+                                <div class="detail-item"><i class="fas fa-tachometer-alt" aria-hidden="true"></i> {{ weather.pressure }} hPa</div>
+                            </div>
+                            <div class="weather-details-row" style="margin-top:8px;">
+                                <div class="detail-item"><i class="fas fa-arrow-up" aria-hidden="true"></i> Max: {{ weather.temp_max|round }}°</div>
+                                <div class="detail-item"><i class="fas fa-arrow-down" aria-hidden="true"></i> Min: {{ weather.temp_min|round }}°</div>
+                                <div class="detail-item"><i class="fas fa-sun" aria-hidden="true"></i> Sunrise: {{ weather.sunrise }}</div>
+                                <div class="detail-item"><i class="fas fa-moon" aria-hidden="true"></i> Sunset: {{ weather.sunset }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="forecast-bar" aria-label="5-day forecast">
+                    {% if weather.daily_forecast %}
+                    <div class="forecast-row">
+                        {% for day in weather.daily_forecast %}
+                        <div class="forecast-day">
+                            <div class="forecast-day-label">{{ day.day }}</div>
+                            <img src="http://openweathermap.org/img/wn/{{ day.icon }}.png" alt="Icon" aria-hidden="true">
+                            <div class="forecast-temp">{{ day.temp|round }}°</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="no-data">Forecast data not available</p>
+                    {% endif %}
+                </section>
+                {% endif %}
+            </div>
+            <div class="weather-animations right-anim" aria-hidden="true">
+                <div class="sun"></div>
+                <div class="cloud"></div>
+                <div class="rain">
+                    <div class="rain-drop"></div>
+                    <div class="rain-drop"></div>
+                    <div class="rain-drop"></div>
+                </div>
+                <div class="lightning"></div>
+                <div class="snow">
+                    <div class="snowflake"></div>
+                    <div class="snowflake"></div>
+                    <div class="snowflake"></div>
+                </div>
+                <div class="fog"></div>
+            </div>
+        </main>
+    </body>
+
+</html>
